@@ -10,8 +10,10 @@ module OmniAuth
         end
 
         def audience
-          applies_to = REXML::XPath.first(document, '//t:RequestSecurityTokenResponse/wsp:AppliesTo', { 't' => WS_TRUST, 'wsp' => WS_POLICY })
-          REXML::XPath.first(applies_to, '//EndpointReference/Address').text
+          #applies_to = REXML::XPath.first(document, '//t:RequestSecurityTokenResponse/wsp:AppliesTo', { 't' => WS_TRUST, 'wsp' => WS_POLICY })
+          #REXML::XPath.first(applies_to, '//EndpointReference/Address').text
+          applies_to = REXML::XPath.first(document, '//t:RequestSecurityTokenResponse/wsp:AppliesTo', { 't' => OmniAuth::Strategies::WSFed::WS_TRUST, 'wsp' => OmniAuth::Strategies::WSFed::WS_POLICY })
+          (REXML::XPath.first(applies_to, '//EndpointReference/Address') || REXML::XPath.first(applies_to, '//wsa:EndpointReference/wsa:Address')).text
         end
 
         def issuer
