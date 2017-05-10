@@ -29,16 +29,15 @@ module OmniAuth
       def callback_phase
         begin
           type = !@request.params["type"].nil? ? @request.params["type"] : "internal"
-          options = options[type]
           validate_callback_params(@request)
 
           wsfed_callback = request.params['wresult']
 
-          signed_document = OmniAuth::Strategies::WSFed::XMLSecurity::SignedDocument.new(wsfed_callback, options)
+          signed_document = OmniAuth::Strategies::WSFed::XMLSecurity::SignedDocument.new(wsfed_callback, options[type])
           signed_document.validate(get_fingerprint(type), false)
 
-          auth_callback   = OmniAuth::Strategies::WSFed::AuthCallback.new(wsfed_callback, options)
-          validator       = OmniAuth::Strategies::WSFed::AuthCallbackValidator.new(auth_callback, options)
+          auth_callback   = OmniAuth::Strategies::WSFed::AuthCallback.new(wsfed_callback, options[type])
+          validator       = OmniAuth::Strategies::WSFed::AuthCallbackValidator.new(auth_callback, options[type])
 
           validator.validate!
 
@@ -65,11 +64,10 @@ module OmniAuth
     private
 
       def get_fingerprint(type)
-        options = options[type]
-        if options[:idp_cert_fingerprint]
-          options[:idp_cert_fingerprint]
+        if options[type][:idp_cert_fingerprint]
+          options[type][:idp_cert_fingerprint]
         else
-          cert = OpenSSL::X509::Certificate.new(options[:idp_cert].gsub(/^ +/, ''))
+          cert = OpenSSL::X509::Certificate.new(options[type][:idp_cert].gsub(/^ +/, ''))
           Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(':')
         end
       end
@@ -85,3 +83,5 @@ module OmniAuth
 end
 
 OmniAuth.config.add_camelization 'wsfed', 'WSFed'
+
+
