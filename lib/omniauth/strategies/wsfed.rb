@@ -19,7 +19,7 @@ module OmniAuth
 
       # Issues passive WS-Federation redirect for authentication...
       def request_phase
-        settings = options.dup
+        settings = options[@request.params["type"]].dup
         settings[:reply] ||= callback_url
         auth_request = OmniAuth::Strategies::WSFed::AuthRequest.new(settings, :whr => @request.params['whr'])
         redirect(auth_request.redirect_url)
