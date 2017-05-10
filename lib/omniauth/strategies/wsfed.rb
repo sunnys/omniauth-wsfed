@@ -28,12 +28,14 @@ module OmniAuth
       # Parse SAML token...
       def callback_phase
         begin
+          type = !@request.params["type"].nil? ? @request.params["type"] : "internal"
+          options = options[type]
           validate_callback_params(@request)
 
           wsfed_callback = request.params['wresult']
 
           signed_document = OmniAuth::Strategies::WSFed::XMLSecurity::SignedDocument.new(wsfed_callback, options)
-          signed_document.validate(get_fingerprint, false)
+          signed_document.validate(get_fingerprint(type), false)
 
           auth_callback   = OmniAuth::Strategies::WSFed::AuthCallback.new(wsfed_callback, options)
           validator       = OmniAuth::Strategies::WSFed::AuthCallbackValidator.new(auth_callback, options)
@@ -62,7 +64,8 @@ module OmniAuth
 
     private
 
-      def get_fingerprint
+      def get_fingerprint(type)
+        options = options[type]
         if options[:idp_cert_fingerprint]
           options[:idp_cert_fingerprint]
         else
