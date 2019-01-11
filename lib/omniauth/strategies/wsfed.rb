@@ -30,7 +30,7 @@ module OmniAuth
         begin
           validate_callback_params(@request)
 
-          wsfed_callback = request.params['wresult']
+          wsfed_callback = request.params['SAMLResponse']
 
           signed_document = OmniAuth::Strategies::WSFed::XMLSecurity::SignedDocument.new(wsfed_callback, options)
           signed_document.validate(get_fingerprint, false)
@@ -58,7 +58,7 @@ module OmniAuth
 
       info { @claims }
 
-      extra { { :wresult => request.params['wresult'] } }
+      extra { { :wresult => request.params['SAMLResponse'] } }
 
     private
 
@@ -72,7 +72,7 @@ module OmniAuth
       end
 
       def validate_callback_params(request)
-        if request.params['wresult'].nil? || request.params['wresult'].empty?
+        if request.params['SAMLResponse'].nil? || request.params['SAMLResponse'].empty?
           raise OmniAuth::Strategies::WSFed::ValidationError.new('AuthN token (wresult) missing in callback.')
         end
       end
